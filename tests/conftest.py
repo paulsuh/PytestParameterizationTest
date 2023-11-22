@@ -1,6 +1,7 @@
-from pytest import fixture
 from glob import glob
 from json import load
+
+from pytest import fixture
 from yaml import safe_load
 
 

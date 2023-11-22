@@ -1,0 +1,9 @@
+name: PytestParameterizationTest
+channels:
+  - conda-forge
+  - default
+dependencies:
+  - python=3.11
+  - pytest-cov
+  - pyyaml
+prefix: /usr/local/Caskroom/miniconda/base/envs/PytestParameterizationTest
