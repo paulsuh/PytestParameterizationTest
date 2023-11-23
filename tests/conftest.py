@@ -1,8 +1,19 @@
-from glob import glob
+import os
 from json import load
+from os.path import join
 
 from pytest import fixture
 from yaml import safe_load
+
+
+def load_test_data_from_file(filepath: str) -> tuple[any, any]:
+    with open(filepath) as fp:
+        if filepath.endswith(".json"):
+            test_data = load(fp)
+        elif filepath.endswith((".yaml", ".yml")):
+            test_data = safe_load(fp)
+
+        return test_data["input"], test_data["expected_result"]
 
 
 def pytest_generate_tests(metafunc):
@@ -11,17 +22,26 @@ def pytest_generate_tests(metafunc):
     # check file names against test names
     # parameterize against list of names if match
     test_name = metafunc.definition.name.removeprefix("test_")
-    test_data_filenames = glob(f"./test_data/{test_name}*")
 
     fixture_data_list = []
-    for one_data_file in test_data_filenames:
-        with open(one_data_file) as fp:
-            if one_data_file.endswith(".json"):
-                test_data = load(fp)
-            elif one_data_file.endswith((".yaml", ".yml")):
-                test_data = safe_load(fp)
+    for root, dirs, files in os.walk(os.getcwd()):
+        # remove dirs that start with .
+        for one_dir in dirs:
+            if one_dir.startswith("."):
+                dirs.remove(one_dir)
 
-            fixture_data_list.append([test_data["input"], test_data["expected_result"]])
+        if root.endswith("test_data"):
+            test_data_filenames = [
+                one_filename
+                for one_filename in files
+                if one_filename.startswith(test_name)
+            ]
+
+            for one_data_file in test_data_filenames:
+                input, expected_result = load_test_data_from_file(
+                    join(root, one_data_file)
+                )
+                fixture_data_list.append([input, expected_result])
 
     if len(fixture_data_list) > 0:
         metafunc.parametrize(
