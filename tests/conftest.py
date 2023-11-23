@@ -23,11 +23,12 @@ def pytest_generate_tests(metafunc):
 
             fixture_data_list.append([test_data["input"], test_data["expected_result"]])
 
-    metafunc.parametrize(
-        ("input", "expected_result"),
-        fixture_data_list,
-        scope="function"
-    )
+    if len(fixture_data_list) > 0:
+        metafunc.parametrize(
+            ("input", "expected_result"),
+            fixture_data_list,
+            scope="function"
+        )
 
 
 @fixture
